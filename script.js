@@ -214,4 +214,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- 7. Hamburger Menu Logic ---
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+
+    if (hamburger) {
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            
+            // Toggle hamburger icon between bars and xmark
+            const icon = hamburger.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close menu when clicking a link
+        const links = navLinks.querySelectorAll('a');
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = hamburger.querySelector('i');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            });
+        });
+    }
 });
