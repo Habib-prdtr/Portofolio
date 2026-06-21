@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let isDragging = false;
         let startX, startY, initialX, initialY;
 
-        badge.addEventListener('mousedown', (e) => {
+        const startDrag = (e) => {
             isDragging = true;
             badge.classList.add('dragging');
             
@@ -188,31 +188,50 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.style.right = 'auto';
             badge.style.bottom = 'auto';
             
-            // Store mouse start positions and element start positions
-            startX = e.clientX;
-            startY = e.clientY;
+            // Support both mouse and touch
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            startX = clientX;
+            startY = clientY;
             initialX = parseFloat(badge.style.left) || 0;
             initialY = parseFloat(badge.style.top) || 0;
             
-            e.preventDefault(); // prevent text selection
-        });
+            if (e.type !== 'touchstart') {
+                e.preventDefault(); // prevent text selection for mouse
+            }
+        };
 
-        window.addEventListener('mousemove', (e) => {
+        const drag = (e) => {
             if (!isDragging) return;
             
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+            if (e.type === 'touchmove') e.preventDefault(); // Prevent scrolling while dragging
+            
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            const dx = clientX - startX;
+            const dy = clientY - startY;
             
             badge.style.left = (initialX + dx) + 'px';
             badge.style.top = (initialY + dy) + 'px';
-        });
+        };
 
-        window.addEventListener('mouseup', () => {
+        const endDrag = () => {
             if (isDragging) {
                 isDragging = false;
                 badge.classList.remove('dragging');
             }
-        });
+        };
+
+        badge.addEventListener('mousedown', startDrag);
+        badge.addEventListener('touchstart', startDrag, { passive: false });
+        
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag, { passive: false });
+        
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
     });
 
     // --- 7. Hamburger Menu Logic ---
